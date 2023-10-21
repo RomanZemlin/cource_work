@@ -23,7 +23,7 @@ load_dotenv(dotenv_path=BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-zyyhz1q1n1xj*anyfsoeejwjbq(9cv)x^k8re(q*k*h3%t)=+b'
+SECRET_KEY = getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'email_distribution.apps.EmailDistributionConfig',
     'users.apps.UsersConfig',
     'blog.apps.BlogConfig',
-    'django_crontab'
+    'django_apscheduler'
 ]
 
 MIDDLEWARE = [
@@ -81,10 +81,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'email_distribution',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
+        'ENGINE': getenv('DATABASE_ENGINE'),
+        'NAME': getenv('DATABASE_NAME'),
+        'USER': getenv('DATABASE_USER'),
+        'PASSWORD': getenv('DATABASE_PASSWORD'),
     }
 }
 
@@ -131,18 +131,37 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Настройки для email
 EMAIL_BACKEND = getenv('EMAIL_BACKEND')
 EMAIL_HOST = getenv('EMAIL_HOST')
-EMAIL_PORT = getenv('EMAIL_PORT')
-EMAIL_USE_TLS = getenv('EMAIL_USE_TLS') == '1'
+EMAIL_PORT = int(getenv('EMAIL_PORT'))
+EMAIL_USE_SSL = True
 EMAIL_HOST_USER = getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
 
-# Настройки для crontab
-CRONJOBS = [
-    ('*/1 * * * *', 'email_distribution.cron.my_scheduled_job')
-]
+
+# Настройки для scheduler
+
+APSCHEDULER_JOBSTORES = {
+    'default': {
+        'type': 'sqlalchemy',
+        'url': 'sqlite:///apscheduler.sqlite'
+    }
+}
+APSCHEDULER_EXECUTORS = {
+    'default': {
+        'type': 'threadpool',
+        'max_workers': 20
+    }
+}
+APSCHEDULER_JOB_DEFAULTS = {
+       'coalesce': False,
+       'max_instances': 1
+}
+APSCHEDULER_STARTUP = True
+# Добавьте путь до файла scheduler.py
+APSCHEDULER_SCHEDULER = 'email_distribution.scheduler.start'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -157,6 +176,6 @@ CACHE_ENABLED = True
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": 'redis://127.0.0.1:6379'
+        "LOCATION": getenv('CACHES_LOCATION')
     }
 }

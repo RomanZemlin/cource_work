@@ -45,7 +45,7 @@ class UserCreateView(CreateView):
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': account_activation_token.make_token(user),
         })
-        to_email = form.cleaned_data.get('email')
+        to_email = form.instance.email
         email = EmailMessage(
             mail_subject, message, to=[to_email]
         )
