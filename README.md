@@ -12,6 +12,9 @@
 7. В файле .env.sample заполнить данные для работы с проектом и переименовать его в .env
 8. Запустить через команду python3 manage.py runserver
 
+### Создание суперпользователя 
+- Введите в консоль команду python manage.py createsuperuser
+
 ### Ручной запуск отправки писем:
 - Запустив сервер через команду python3 manage.py runserver, введите в консоли вашей IDE python manage.py sendscheduledemail
 
