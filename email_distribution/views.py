@@ -76,11 +76,6 @@ class EmailDistributionDeleteView(LoginRequiredMixin, UserPassesTestMixin, Delet
         return not self.request.user.is_staff
 
 
-def delete(self, request, *args, **kwargs):
-    # остановить планировщик
-    scheduler.shutdown()
-
-    return super().delete(request, *args, **kwargs)
 
 
 class MessageCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
