@@ -1,6 +1,6 @@
 import datetime
 from django.core.management.base import BaseCommand
-from email_distribution.scheduler import send_email
+from email_distribution.services import send_email
 
 
 class Command(BaseCommand):
