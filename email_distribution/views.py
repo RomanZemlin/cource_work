@@ -5,8 +5,9 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from email_distribution.forms import MessageForm, ClientForm, EmailDistributionCreateForm, EmailDistributionUpdateForm
 from email_distribution.models import EmailDistribution, Message, Client, Logs
+from email_distribution.scheduler import scheduler
 
-from email_distribution.services import index_get_cache, send_email
+from email_distribution.services import index_get_cache
 
 
 def index(request):
@@ -44,7 +45,9 @@ class EmailDistributionCreateView(LoginRequiredMixin, UserPassesTestMixin, Creat
         if obj.finish <= obj.next:
             obj.status = 0
         obj.save()
-        send_email()
+
+        scheduler.start()
+
         return super().form_valid(form)
 
     def test_func(self):
@@ -71,6 +74,13 @@ class EmailDistributionDeleteView(LoginRequiredMixin, UserPassesTestMixin, Delet
 
     def test_func(self):
         return not self.request.user.is_staff
+
+
+def delete(self, request, *args, **kwargs):
+    # остановить планировщик
+    scheduler.shutdown()
+
+    return super().delete(request, *args, **kwargs)
 
 
 class MessageCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):

@@ -46,7 +46,7 @@ def send_email():
     mailing_list = EmailDistribution.objects.all()
     for obj in mailing_list:
         if obj.is_active:
-            now = datetime.datetime.now(pytz.timezone('UTC'))
+            now = datetime.datetime.now(pytz.timezone('Europe/Moscow'))
             if obj.status == 1:
                 if obj.start <= now:
                     obj.start = now
