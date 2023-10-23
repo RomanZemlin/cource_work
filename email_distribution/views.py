@@ -44,6 +44,7 @@ class EmailDistributionCreateView(LoginRequiredMixin, UserPassesTestMixin, Creat
         if obj.finish <= obj.next:
             obj.status = 0
         obj.save()
+        send_email()
         return super().form_valid(form)
 
     def test_func(self):
