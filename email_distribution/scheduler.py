@@ -1,11 +1,9 @@
 import threading
 import time
-from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 from django_apscheduler.jobstores import DjangoJobStore
-
-from email_distribution.models import EmailDistribution
 from email_distribution.services import send_email
 
 scheduler = BackgroundScheduler()
@@ -14,6 +12,9 @@ scheduler.add_jobstore(DjangoJobStore(), "default")
 
 def schedule_email():
     send_email()
+
+
+scheduler.add_job(schedule_email, trigger=CronTrigger.from_crontab('0 9 * * *'))  # Здесь установлен запуск задачи каждый день в 9:00
 
 
 def check_scheduler():
@@ -25,8 +26,8 @@ def check_scheduler():
         else:
             # Если неактивен, включить планировщик
             scheduler.start()
-            # Здесь можно добавить дополнительную логику, например, получение новых значений из формы или проверка условий для активации планировщика
 
 
 # Запуск отдельного потока для проверки состояния планировщика
 check_thread = threading.Thread(target=check_scheduler)
+
