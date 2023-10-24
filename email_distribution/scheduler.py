@@ -14,9 +14,6 @@ def schedule_email():
     send_email()
 
 
-scheduler.add_job(schedule_email, trigger=CronTrigger.from_crontab('0 9 * * *'))  # Здесь установлен запуск задачи каждый день в 9:00
-
-
 def check_scheduler():
     while True:
         # Проверка состояния планировщика
@@ -28,6 +25,5 @@ def check_scheduler():
             scheduler.start()
 
 
-# Запуск отдельного потока для проверки состояния планировщика
-check_thread = threading.Thread(target=check_scheduler)
+
 

@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from apscheduler.triggers.cron import CronTrigger
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, get_object_or_404, redirect
@@ -5,7 +8,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from email_distribution.forms import MessageForm, ClientForm, EmailDistributionCreateForm, EmailDistributionUpdateForm
 from email_distribution.models import EmailDistribution, Message, Client, Logs
-from email_distribution.scheduler import scheduler
+from email_distribution.scheduler import scheduler, schedule_email
 
 from email_distribution.services import index_get_cache
 
@@ -46,7 +49,12 @@ class EmailDistributionCreateView(LoginRequiredMixin, UserPassesTestMixin, Creat
             obj.status = 0
         obj.save()
 
-        scheduler.start()
+        # Разбить значение время на дату и время
+        hour = obj.start.hour
+        minute = obj.start.minute
+
+        # Добавление задачи для планировщика
+        scheduler.add_job(schedule_email, trigger=CronTrigger(hour=hour, minute=minute))
 
         return super().form_valid(form)
 
@@ -74,8 +82,6 @@ class EmailDistributionDeleteView(LoginRequiredMixin, UserPassesTestMixin, Delet
 
     def test_func(self):
         return not self.request.user.is_staff
-
-
 
 
 class MessageCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
